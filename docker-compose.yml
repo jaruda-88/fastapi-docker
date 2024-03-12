@@ -1,0 +1,54 @@
+version: '3.7'
+
+
+networks:
+  my-fast-net:
+    driver: bridge
+
+
+volumes:
+  mysql-data:
+
+
+services:
+  my-fast-db:
+    image: mysql
+    restart: always
+    container_name: my-fast-db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      TZ: Asia/Seoul
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: example
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    networks:
+      - default
+      - my-fast-net
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD']
+      interval: 4s
+      timeout: 60s
+      retries: 10
+
+    
+  my-fast-api:
+    build:
+      context: ./app
+    image: "my-fast-api:0.0.1"
+    restart: always
+    container_name: my-fast-api
+    ports:
+      - "8000:8000"
+    networks:
+      - default
+      - my-fast-net
+    depends_on:
+      my-fast-db:
+        condition: service_healthy
+
+
