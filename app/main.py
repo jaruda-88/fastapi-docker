@@ -1,10 +1,19 @@
 import uvicorn
 from fastapi import FastAPI
-from databases.conn import db_conn
-from models.item import Base
-# from models.user import Base as base_user
-# from models.item import Base as base_item
+
 from starlette.middleware.cors import CORSMiddleware
+
+
+def init_db(app: FastAPI):
+    
+    from databases.conn import db_conn
+    from models.item import Base as item_base
+    from models.user import Base as user_base
+
+    db_conn.initialize(app=app)
+
+    item_base.metadata.create_all(bind=db_conn.engine)
+    user_base.metadata.create_all(bind=db_conn.engine)
 
 
 def create_app():
@@ -18,12 +27,8 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"]
     )   
-    # base_user.metadata.create_all(bind=db_conn.engine)
-    # base_item.metadata.create_all(bind=db_conn.engine)
-
-    db_conn.initialize(app=app)
-    Base.metadata.create_all(bind=db_conn.engine)
-
+    
+    init_db(app=app)
 
     return app
 
