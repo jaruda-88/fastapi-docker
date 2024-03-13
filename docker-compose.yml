@@ -1,6 +1,11 @@
 version: '3.7'
 
 
+x-common-variables: &common-variables
+  MYSQL_ROOT_PASSWORD: admin
+  MYSQL_DATABASE: example
+
+
 networks:
   my-fast-net:
     driver: bridge
@@ -11,16 +16,15 @@ volumes:
 
 
 services:
-  my-fast-db:
+  my-fast-db: 
     image: mysql
     restart: always
     container_name: my-fast-db
     volumes:
       - mysql-data:/var/lib/mysql
-    environment:
+    environment: 
+      <<: *common-variables
       TZ: Asia/Seoul
-      MYSQL_ROOT_PASSWORD: admin
-      MYSQL_DATABASE: example
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -42,6 +46,10 @@ services:
     image: "my-fast-api:0.0.1"
     restart: always
     container_name: my-fast-api
+    volumes:
+      - ./app:/app
+    environment:
+      <<: *common-variables
     ports:
       - "8000:8000"
     networks:
