@@ -16,18 +16,11 @@ class DBConnector:
 
     def initialize(self, app:FastAPI, **kwargs) -> None:
 
-        USERNAME = 'root'
-        PASSWORD = 'admin'
-        HOST = '192.168.0.100'
-        PORT = 3306
-        DBNAME = 'example'
-        
-        db_url = f'mysql+pymysql://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}'
         pool_recycle = 900
         echo = True
 
         self._engine = create_engine(
-            db_url,
+            kwargs.get("DB_URL"),
             echo=echo,
             pool_recycle=pool_recycle,
             pool_pre_ping=True

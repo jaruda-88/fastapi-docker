@@ -1,6 +1,9 @@
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from app.commons.config import conf
+
+config = conf()
 
 
 def init_db(app: FastAPI):
@@ -9,7 +12,7 @@ def init_db(app: FastAPI):
     from models.item import Base as item_base
     from models.user import Base as user_base
 
-    db_conn.initialize(app=app)
+    db_conn.initialize(app=app, DB_URL=config.get_db_url())
 
     item_base.metadata.create_all(bind=db_conn.engine)
     user_base.metadata.create_all(bind=db_conn.engine)
@@ -31,9 +34,7 @@ def create_app():
 
     return app
 
-
 app = create_app()
-
 
 @app.get("/")
 async def index():
